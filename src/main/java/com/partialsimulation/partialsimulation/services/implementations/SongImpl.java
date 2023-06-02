@@ -119,15 +119,13 @@ public class SongImpl implements SongService {
 		List<SongShowDTO> listaDTO = new ArrayList<>();
 		
 		 for (Song song : listsongs) {
-	            int seconds = song.getDuration();
-	            int minutes = seconds / 60;
-	            int secondsShow = seconds % 60;
+	            int minutes = song.getDuration();
+	            int seconds = 60/minutes;
 
-	            String duracionFormato = String.format("%02d:%02d", minutes, secondsShow);
+	            String duracionFormato = String.format("%02d:%02d", minutes, seconds);
 
-
-	       
 	            SongShowDTO cancionDTO = new SongShowDTO(
+						song.getCode(),
 	            		song.getTitle(),
 	            		duracionFormato);
 

@@ -1,6 +1,7 @@
 package com.partialsimulation.partialsimulation.controllers.user;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,6 @@ import com.partialsimulation.partialsimulation.models.dtos.user.ChangeUserPasswo
 import com.partialsimulation.partialsimulation.models.dtos.user.CreateUserDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.LoginUserDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.ShowInfoPlaylistDTO;
-import com.partialsimulation.partialsimulation.models.entities.PlayList;
 import com.partialsimulation.partialsimulation.models.entities.User;
 import com.partialsimulation.partialsimulation.services.UserService;
 
@@ -62,10 +62,9 @@ public class UserController {
 		case "usuario creado": {
 			return new ResponseEntity<>("usuario creado",HttpStatus.OK);
 		}
-		case "nombre de usuario no disponible":{
-			return new ResponseEntity<>("nombre de usuario no disponible",HttpStatus.BAD_REQUEST);
-			
-			}
+		case "El usuario ya existe": {
+			return new ResponseEntity<>("El usuario ya existe",HttpStatus.BAD_REQUEST);
+		}
 		default:
 			return new ResponseEntity<>("Los campos no son validos",HttpStatus.BAD_REQUEST);
 		}
@@ -105,9 +104,11 @@ public class UserController {
 	
 	
 	@RequestMapping(value="/playlist", method = RequestMethod.GET)
-    public ResponseEntity<?> findUserPlaylists(@RequestParam("idUser") String idUser, 
-											@RequestParam("fragment") String fragment){
+    public ResponseEntity<?> findUserPlaylists(@RequestParam("idUser") String idUser
+								, @RequestParam("fragment") String fragment){
         
+		System.out.println("idUser: "+idUser);
+		System.out.println("fragment: "+fragment);
         List<ShowInfoPlaylistDTO> list = userservice.findPlaylistByIdentifer(idUser,fragment);
         if (list == null) {
         	return new ResponseEntity<>("error en campos",HttpStatus.BAD_REQUEST);

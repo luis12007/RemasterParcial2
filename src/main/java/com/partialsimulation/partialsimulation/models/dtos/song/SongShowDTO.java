@@ -1,5 +1,7 @@
 package com.partialsimulation.partialsimulation.models.dtos.song;
 
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -7,6 +9,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class SongShowDTO {
 
+	private UUID code;
+	
 	private String title;
 	
 	private String time;

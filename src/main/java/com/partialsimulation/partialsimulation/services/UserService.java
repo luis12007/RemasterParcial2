@@ -1,6 +1,7 @@
 package com.partialsimulation.partialsimulation.services;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.partialsimulation.partialsimulation.models.dtos.MessageResultDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.ChangeUserPasswordDTO;

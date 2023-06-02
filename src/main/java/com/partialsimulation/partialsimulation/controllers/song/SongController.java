@@ -47,7 +47,7 @@ public class SongController {
        
     }
     
-    @GetMapping ("/{filter}")
+    @GetMapping ("/")
     public ResponseEntity<?> findByFilter(@RequestParam("filter") String filter){
     	System.out.println(filter);
 			return new ResponseEntity<>(songService.finAllByTitlle(filter), HttpStatus.OK);

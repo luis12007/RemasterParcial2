@@ -41,17 +41,15 @@ public class UserImpl implements UserService {
 		
 		List<User> users = userrepo.findAll();
 		
-		User compuser = users.stream().filter(e -> (e.getUsername().equals(newuser.getUsername())))
-				.findAny()
-				.orElse(null);
+		User compuser = users.stream().filter(e -> (e.getUsername().equals(newuser.getUsername())
+										|| e.getEmail().equals(newuser.getEmail())))
+							.findAny()
+							.orElse(null);
+
 				if(compuser != null) {
-					if(compuser.getUsername().equals(newuser.getUsername())){
-						return new MessageResultDTO("nombre de usuario no disponible");
-					}else if(compuser.getEmail().equals(newuser.getEmail())){
-						return new MessageResultDTO("correo de usuario no disponible");
-					}
+					return new MessageResultDTO("El usuario ya existe");
 				}	
-				System.out.println(createUserDTO);
+		System.out.println(createUserDTO);
 		userrepo.save(newuser);
 		return new MessageResultDTO("usuario creado");
 	}
@@ -182,14 +180,16 @@ public class UserImpl implements UserService {
 		System.out.println(UserMail);
 				if(UserMail != null) {
 					
-					List<PlayList> playlistone = playlistAll.stream().filter(e -> e.getUser().getCode().equals(UserMail.getCode())).collect(Collectors.toList());
+					List<PlayList> playlistone = playlistAll.stream().filter(e -> e.getUser().getCode()
+												.equals(UserMail.getCode())).collect(Collectors.toList());
 					
 					List<PlayList> lists = playlistone.stream()
 			                .filter(p -> p.getTitle().toLowerCase().contains(identifier.toLowerCase()))
 			                .collect(Collectors.toList());
 
 					for(PlayList p : lists){
-						ShowInfoPlaylistDTO element = new ShowInfoPlaylistDTO(p.getCode(), p.getTitle(), p.getDescription(),p.getUser().getCode());
+						ShowInfoPlaylistDTO element = new ShowInfoPlaylistDTO(p.getCode(), p.getTitle()
+											, p.getDescription(),p.getUser().getCode());
 						playlist.add(element);
 					}
 		
@@ -200,7 +200,9 @@ public class UserImpl implements UserService {
 						.findAny()
 						.orElse(null);
 				if(UserUsername != null) {
-					List<PlayList> playlistone = playlistAll.stream().filter(e -> e.getUser().getCode().equals(UserUsername.getCode())).collect(Collectors.toList());
+					List<PlayList> playlistone = playlistAll.stream().filter(e -> e.getUser().getCode()
+												.equals(UserUsername.getCode())).collect(Collectors.toList());
+
 					System.out.println(playlistone);
 
 					List<PlayList> lists = playlistone.stream()
@@ -208,7 +210,8 @@ public class UserImpl implements UserService {
 			                .collect(Collectors.toList());
 
 					for(PlayList p : lists){
-						ShowInfoPlaylistDTO element = new ShowInfoPlaylistDTO(p.getCode(), p.getTitle(), p.getDescription(),p.getUser().getCode());
+						ShowInfoPlaylistDTO element = new ShowInfoPlaylistDTO(p.getCode(), p.getTitle()
+												, p.getDescription(),p.getUser().getCode());
 						playlist.add(element);
 					}
 

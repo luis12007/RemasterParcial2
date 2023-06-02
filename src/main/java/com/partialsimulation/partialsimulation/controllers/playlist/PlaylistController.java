@@ -36,6 +36,9 @@ public class PlaylistController {
         System.out.println(messageResultDTO.getMessage());
 
         switch (messageResultDTO.getMessage()){
+            case "usuario no encontrado":{
+                return new ResponseEntity<>(messageResultDTO.getMessage(),HttpStatus.NOT_FOUND);
+            }
             case "playlist añadida con éxito":{
                 return new ResponseEntity<>(messageResultDTO.getMessage(),HttpStatus.OK);
             }        
@@ -67,9 +70,10 @@ public class PlaylistController {
     }
     
     @RequestMapping(value = "/playlist/{code}", method = RequestMethod.GET)
-    public ResponseEntity<?> addSongToPlaylist(@PathVariable UUID code) {
+    public ResponseEntity<?> ListOfPlaylists(@PathVariable UUID code) {
+        System.out.println(code);
         ListDetailsDTO listdetails = playlistService.findDetailsPlaylist(code);
-
+        System.out.println(listdetails);
         if (listdetails == null) {
         	return new ResponseEntity<>("algo salio mal",HttpStatus.BAD_REQUEST);
 		}

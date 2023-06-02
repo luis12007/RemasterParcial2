@@ -79,7 +79,7 @@ public class PlaylistImpl implements PlaylistService {
 			return new MessageResultDTO("playlist añadida con éxito");
 		}
 
-		return new MessageResultDTO("playlist ya existe");	
+		return new MessageResultDTO("La playlist ya existe");	
 }
 
 	@Override
@@ -190,7 +190,7 @@ public class PlaylistImpl implements PlaylistService {
 		.filter(e -> e.getCode().equals(playlistId))
 		.findAny().orElse(null);
 		
-		System.out.println("playlist:" + playlist);
+		System.out.println("playlist: " + playlist);
 
 		if(playlist == null){
 			return new MessageResultDTO("No se encontró la playlist");
@@ -199,7 +199,8 @@ public class PlaylistImpl implements PlaylistService {
 		Song song = songs.stream()
 						.filter(e -> e.getCode().equals(addSongDTO.getIdentifier()))
 						.findAny().orElse(null);
-		System.out.println("song:" + song);
+		System.out.println("song: " + song);
+		
 		if(song == null){
 			return new MessageResultDTO("No se encontró la canción");
 		}
@@ -209,35 +210,36 @@ public class PlaylistImpl implements PlaylistService {
 		List<SelectedSong> filteredPlaylists = selectedSongs.stream()
 											.filter(e -> e.getPlaylist().getCode().equals(playlistId)).toList();
 
-		for (SelectedSong s: filteredPlaylists){
-			if(s.getSong().getCode().equals(addSongDTO.getIdentifier())){
-				return new MessageResultDTO("La canción ya existe en la playlist");
-			}
-			else{
-				LocalDate localDate = LocalDate.now();
-				SelectedSong selectedSong = new SelectedSong(
-					Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()),
-					s.getSong(),
-					s.getPlaylist()
-				);
-				selectedRepository.save(selectedSong);
-				return new MessageResultDTO("Canción añadida con éxito");
-			}
-		}
+		SelectedSong userSong = filteredPlaylists.stream()
+						.filter(e -> e.getSong().getCode().equals(addSongDTO.getIdentifier()))
+						.findAny().orElse(null);
 		
-		return new MessageResultDTO("No se pudo añadir la canción");
+		if(userSong != null){
+			return new MessageResultDTO("La canción ya existe en la playlist");
+		}
+
+		LocalDate localDate = LocalDate.now();
+		SelectedSong selectedSong = new SelectedSong(
+			Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()),
+			song,
+			playlist
+		);
+
+		selectedRepository.save(selectedSong);
+		return new MessageResultDTO("Canción añadida con éxito");
 	}
 
 	@Override
 	public ListDetailsDTO findDetailsPlaylist(UUID identifier) {
+		System.out.println(identifier);
 
-		List<SelectedSong> Selected = selectedRepository.findAll()
-				.stream()
-				.filter(e -> e.getPlaylist().getCode().equals(identifier))
-				.collect(Collectors.toList());
+		List<SelectedSong> selectedSongs = selectedRepository.findAll().stream()
+											.filter(e -> e.getPlaylist().getCode().equals(identifier))
+											.toList();
+		System.out.println(selectedSongs);
 		
-		List<SongsFilterTimeDTO> mysongs = Selected.stream().map(e -> new SongsFilterTimeDTO(e.getSong().getCode(),e.getSong().getTitle(),e.getSong().getDuration(),e.getDate_added())).collect(Collectors.toList());
-
+		List<SongsFilterTimeDTO> mysongs = selectedSongs.stream().map(e -> new SongsFilterTimeDTO(e.getSong().getCode(),e.getSong().getTitle(),e.getSong().getDuration(),e.getDate_added())).toList();
+		System.out.println(mysongs);
 		List<SongsToFilterDTO> listaDTO = new ArrayList<>();
 		int counterduration = 0;
 		
