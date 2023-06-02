@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -232,7 +231,7 @@ public class PlaylistImpl implements PlaylistService {
 	@Override
 	public ListDetailsDTO findDetailsPlaylist(UUID identifier) {
 		System.out.println(identifier);
-
+		
 		List<SelectedSong> selectedSongs = selectedRepository.findAll().stream()
 											.filter(e -> e.getPlaylist().getCode().equals(identifier))
 											.toList();
@@ -244,12 +243,11 @@ public class PlaylistImpl implements PlaylistService {
 		int counterduration = 0;
 		
 		 for (SongsFilterTimeDTO song : mysongs) {
-	            int seconds = song.getTime();
-	            counterduration = counterduration+seconds;
-	            int minutes = seconds / 60;
-	            int secondsShow = seconds % 60;
+	            int minutes = song.getTime();
+	            counterduration = counterduration+minutes;
+	            int seconds = 60/minutes;
 
-	            String duracionFormato = String.format("%02d:%02d", minutes, secondsShow);
+	            String duracionFormato = String.format("%02d:%02d", minutes, seconds);
 
 	            SongsToFilterDTO cancionDTO = new SongsToFilterDTO(
 						song.getId_song(),
@@ -260,11 +258,10 @@ public class PlaylistImpl implements PlaylistService {
 	            listaDTO.add(cancionDTO);
 	        }
 		 
-		 int seconds = counterduration;
-         int minutes = seconds / 60;
-         int secondsShow = seconds % 60;
+		 int minutes = counterduration;
+         int seconds = 60/minutes;
 
-         String finald = String.format("%02d:%02d", minutes, secondsShow);
+         String finald = String.format("%02d:%02d", minutes, seconds);
 		
 		 List<PlayList> playlists = playlistRepository.findAll();
 		 PlayList playlist = playlists.stream()

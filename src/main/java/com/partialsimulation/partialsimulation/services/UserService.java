@@ -1,15 +1,12 @@
 package com.partialsimulation.partialsimulation.services;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.partialsimulation.partialsimulation.models.dtos.MessageResultDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.ChangeUserPasswordDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.CreateUserDTO;
-import com.partialsimulation.partialsimulation.models.dtos.user.FindIdDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.LoginUserDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.ShowInfoPlaylistDTO;
-import com.partialsimulation.partialsimulation.models.entities.PlayList;
 import com.partialsimulation.partialsimulation.models.entities.User;
 
 public interface UserService {

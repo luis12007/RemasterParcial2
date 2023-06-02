@@ -7,7 +7,6 @@ import com.partialsimulation.partialsimulation.models.dtos.MessageResultDTO;
 import com.partialsimulation.partialsimulation.models.dtos.playlist.AddSongDTO;
 import com.partialsimulation.partialsimulation.models.dtos.playlist.SavePlaylistDTO;
 import com.partialsimulation.partialsimulation.models.dtos.song.ListDetailsDTO;
-import com.partialsimulation.partialsimulation.models.dtos.song.SongShowDTO;
 import com.partialsimulation.partialsimulation.models.entities.PlayList;
 import com.partialsimulation.partialsimulation.models.entities.Song;
 
