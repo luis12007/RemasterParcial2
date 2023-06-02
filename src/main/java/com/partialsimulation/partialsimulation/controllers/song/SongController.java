@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.partialsimulation.partialsimulation.models.dtos.MessageResultDTO;
-import com.partialsimulation.partialsimulation.models.dtos.song.FilterDTO;
 import com.partialsimulation.partialsimulation.models.dtos.song.SaveSongDTO;
 import com.partialsimulation.partialsimulation.models.entities.Song;
 import com.partialsimulation.partialsimulation.services.SongService;
@@ -47,10 +47,10 @@ public class SongController {
        
     }
     
-    @GetMapping ("/")
-    public ResponseEntity<?> findByFilter(@RequestBody @Valid FilterDTO filter){
+    @GetMapping ("/{filter}")
+    public ResponseEntity<?> findByFilter(@RequestParam("filter") String filter){
     	System.out.println(filter);
-			return new ResponseEntity<>(songService.finAllByTitlle(filter.getFilter()), HttpStatus.OK);
+			return new ResponseEntity<>(songService.finAllByTitlle(filter), HttpStatus.OK);
     }
     
     

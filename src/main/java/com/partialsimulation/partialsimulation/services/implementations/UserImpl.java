@@ -1,5 +1,6 @@
 package com.partialsimulation.partialsimulation.services.implementations;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,8 +12,8 @@ import org.springframework.stereotype.Service;
 import com.partialsimulation.partialsimulation.models.dtos.MessageResultDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.ChangeUserPasswordDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.CreateUserDTO;
-import com.partialsimulation.partialsimulation.models.dtos.user.FindIdDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.LoginUserDTO;
+import com.partialsimulation.partialsimulation.models.dtos.user.ShowInfoPlaylistDTO;
 import com.partialsimulation.partialsimulation.models.entities.PlayList;
 import com.partialsimulation.partialsimulation.models.entities.User;
 import com.partialsimulation.partialsimulation.repositories.PlaylistRepository;
@@ -44,9 +45,11 @@ public class UserImpl implements UserService {
 				.findAny()
 				.orElse(null);
 				if(compuser != null) {
-					if(compuser.getUsername().equals(newuser.getUsername()))
+					if(compuser.getUsername().equals(newuser.getUsername())){
 						return new MessageResultDTO("nombre de usuario no disponible");
-		
+					}else if(compuser.getEmail().equals(newuser.getEmail())){
+						return new MessageResultDTO("correo de usuario no disponible");
+					}
 				}	
 				System.out.println(createUserDTO);
 		userrepo.save(newuser);
@@ -168,31 +171,48 @@ public class UserImpl implements UserService {
 	}
 
 	@Override
-	public List<PlayList> findPlaylistByIdentifer(FindIdDTO info) {
+	public List<ShowInfoPlaylistDTO> findPlaylistByIdentifer(String idUser, String identifier) {
 		List<User> users = userrepo.findAll();
 		List<PlayList> playlistAll = playlistrepo.findAll(); 
+		List<ShowInfoPlaylistDTO> playlist = new ArrayList<>();
 		
-		User UserMail = users.stream().filter(e -> (e.getEmail().equals(info.getIdentifier())))
+		User UserMail = users.stream().filter(e -> (e.getEmail().equals(idUser)))
 				.findAny()
 				.orElse(null);
 		System.out.println(UserMail);
 				if(UserMail != null) {
 					
 					List<PlayList> playlistone = playlistAll.stream().filter(e -> e.getUser().getCode().equals(UserMail.getCode())).collect(Collectors.toList());
-					return playlistone.stream()
-			                .filter(playlist -> playlist.getTitle().toLowerCase().contains(info.getFragment().toString().toLowerCase()))
+					
+					List<PlayList> lists = playlistone.stream()
+			                .filter(p -> p.getTitle().toLowerCase().contains(identifier.toLowerCase()))
 			                .collect(Collectors.toList());
+
+					for(PlayList p : lists){
+						ShowInfoPlaylistDTO element = new ShowInfoPlaylistDTO(p.getCode(), p.getTitle(), p.getDescription(),p.getUser().getCode());
+						playlist.add(element);
+					}
+		
+					return playlist;
 				}
 
-		User UserUsername = users.stream().filter(e -> (e.getUsername().equals(info.getIdentifier())))
+		User UserUsername = users.stream().filter(e -> (e.getUsername().equals(idUser)))
 						.findAny()
 						.orElse(null);
 				if(UserUsername != null) {
 					List<PlayList> playlistone = playlistAll.stream().filter(e -> e.getUser().getCode().equals(UserUsername.getCode())).collect(Collectors.toList());
 					System.out.println(playlistone);
-					return playlistone.stream()
-			                .filter(playlist -> playlist.getTitle().toLowerCase().contains(info.getFragment().toString().toLowerCase()))
+
+					List<PlayList> lists = playlistone.stream()
+			                .filter(p -> p.getTitle().toLowerCase().contains(identifier.toLowerCase()))
 			                .collect(Collectors.toList());
+
+					for(PlayList p : lists){
+						ShowInfoPlaylistDTO element = new ShowInfoPlaylistDTO(p.getCode(), p.getTitle(), p.getDescription(),p.getUser().getCode());
+						playlist.add(element);
+					}
+
+					return playlist;
 				}
 	
 		return null;

@@ -1,5 +1,7 @@
 package com.partialsimulation.partialsimulation.services.implementations;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,7 +16,6 @@ import com.partialsimulation.partialsimulation.models.dtos.MessageResultDTO;
 import com.partialsimulation.partialsimulation.models.dtos.playlist.AddSongDTO;
 import com.partialsimulation.partialsimulation.models.dtos.playlist.SavePlaylistDTO;
 import com.partialsimulation.partialsimulation.models.dtos.song.ListDetailsDTO;
-import com.partialsimulation.partialsimulation.models.dtos.song.SongShowDTO;
 import com.partialsimulation.partialsimulation.models.dtos.song.SongsFilterTimeDTO;
 import com.partialsimulation.partialsimulation.models.dtos.song.SongsToFilterDTO;
 import com.partialsimulation.partialsimulation.models.entities.PlayList;
@@ -40,7 +41,7 @@ public class PlaylistImpl implements PlaylistService {
 	private SongRepository songRepository;
 	
 	@Autowired
-	private SelectedSongRepository selectedrepository;
+	private SelectedSongRepository selectedRepository;
 
 	@Override
 	public MessageResultDTO save(SavePlaylistDTO savePlaylistDTO) throws Exception {
@@ -54,38 +55,32 @@ public class PlaylistImpl implements PlaylistService {
 							e.getUsername().equals(savePlaylistDTO.getIdentifier()))
 								.findAny().orElse(null);
 		
-		System.out.println(user);
-
-		PlayList playlist = new PlayList(
-				savePlaylistDTO.getTitle(),
-				savePlaylistDTO.getDescription(),
-				user
-				);
-
-		System.out.println(playlist);
-
-		List<PlayList> playlists = playlistRepository.findAll();
-
-		if (user == null) {
-			return new MessageResultDTO("usuario no existe");
+		if(user == null){
+			return new MessageResultDTO("usuario no encontrado");
 		}
-		if(playlists.isEmpty()){
+
+		List<PlayList> userPlaylists = playlistRepository.findAll().stream()
+				.filter(e -> e.getUser().getCode().equals(user.getCode())).toList();
+
+		PlayList filterPlayList = userPlaylists.stream()
+					.filter(p -> p.getTitle().equals(savePlaylistDTO.getTitle())).findAny().orElse(null);
+		
+		if(filterPlayList == null){
+
+			PlayList playlist = new PlayList(
+					savePlaylistDTO.getTitle(),
+					savePlaylistDTO.getDescription(),
+					user
+					);
+					
+			System.out.println(playlist);
+			
 			playlistRepository.save(playlist);
 			return new MessageResultDTO("playlist añadida con éxito");
 		}
-		
-		PlayList filterPlayList = playlists.stream()
-				.filter(e -> e.getTitle().equals(playlist.getTitle()))
-				.findAny()
-				.orElse(null);
-		
-		if(filterPlayList != null) {
-			return new MessageResultDTO("playlist ya existe");
-		}else{
-			playlistRepository.save(playlist);
-			return new MessageResultDTO("playlist añadida con éxito");
-		}
-	}
+
+		return new MessageResultDTO("playlist ya existe");	
+}
 
 	@Override
 	public PlayList findOneById(String id) {
@@ -209,31 +204,39 @@ public class PlaylistImpl implements PlaylistService {
 			return new MessageResultDTO("No se encontró la canción");
 		}
 
-		List<SelectedSong> selectedSongs = playlist.getPlaylists();
+		List<SelectedSong> selectedSongs = selectedRepository.findAll();
 		
-		SelectedSong filterSong = selectedSongs.stream()
-									.filter(e -> e.getSong().getCode().equals(song.getCode()))
-									.findAny().orElse(null);
-		System.out.println("filterSong:" + filterSong);
-		if(filterSong != null){
-			return new MessageResultDTO("La canción ya existe en la playlist");
-		}else{
-			SelectedSong selectedSong = new SelectedSong(null, new Date(),song, playlist);
-			selectedrepository.save(selectedSong);
-			return new MessageResultDTO("Canción añadida con éxito");
+		List<SelectedSong> filteredPlaylists = selectedSongs.stream()
+											.filter(e -> e.getPlaylist().getCode().equals(playlistId)).toList();
+
+		for (SelectedSong s: filteredPlaylists){
+			if(s.getSong().getCode().equals(addSongDTO.getIdentifier())){
+				return new MessageResultDTO("La canción ya existe en la playlist");
+			}
+			else{
+				LocalDate localDate = LocalDate.now();
+				SelectedSong selectedSong = new SelectedSong(
+					Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()),
+					s.getSong(),
+					s.getPlaylist()
+				);
+				selectedRepository.save(selectedSong);
+				return new MessageResultDTO("Canción añadida con éxito");
+			}
 		}
 		
+		return new MessageResultDTO("No se pudo añadir la canción");
 	}
 
 	@Override
 	public ListDetailsDTO findDetailsPlaylist(UUID identifier) {
 
-		List<SelectedSong> Selected = selectedrepository.findAll()
+		List<SelectedSong> Selected = selectedRepository.findAll()
 				.stream()
 				.filter(e -> e.getPlaylist().getCode().equals(identifier))
 				.collect(Collectors.toList());
 		
-		List<SongsFilterTimeDTO> mysongs = Selected.stream().map(e -> new SongsFilterTimeDTO(e.getSong().getTitle(),e.getSong().getDuration(),e.getDate_added())).collect(Collectors.toList());
+		List<SongsFilterTimeDTO> mysongs = Selected.stream().map(e -> new SongsFilterTimeDTO(e.getSong().getCode(),e.getSong().getTitle(),e.getSong().getDuration(),e.getDate_added())).collect(Collectors.toList());
 
 		List<SongsToFilterDTO> listaDTO = new ArrayList<>();
 		int counterduration = 0;
@@ -246,9 +249,8 @@ public class PlaylistImpl implements PlaylistService {
 
 	            String duracionFormato = String.format("%02d:%02d", minutes, secondsShow);
 
-
-	       
 	            SongsToFilterDTO cancionDTO = new SongsToFilterDTO(
+						song.getId_song(),
 	            		song.getTitle(),
 	            		duracionFormato,
 	            		song.getDate());
@@ -262,6 +264,12 @@ public class PlaylistImpl implements PlaylistService {
 
          String finald = String.format("%02d:%02d", minutes, secondsShow);
 		
-		return new ListDetailsDTO(listaDTO,finald);
+		 List<PlayList> playlists = playlistRepository.findAll();
+		 PlayList playlist = playlists.stream()
+					.filter(e -> e.getCode().equals(identifier))
+					.findAny().orElse(null);
+
+		return new ListDetailsDTO(playlist.getCode(),playlist.getTitle(),playlist.getDescription(),
+							playlist.getUser().getCode(), listaDTO,finald);
 	} 
 }

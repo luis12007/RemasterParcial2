@@ -10,13 +10,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.partialsimulation.partialsimulation.models.dtos.MessageResultDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.ChangeUserPasswordDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.CreateUserDTO;
-import com.partialsimulation.partialsimulation.models.dtos.user.FindIdDTO;
 import com.partialsimulation.partialsimulation.models.dtos.user.LoginUserDTO;
+import com.partialsimulation.partialsimulation.models.dtos.user.ShowInfoPlaylistDTO;
 import com.partialsimulation.partialsimulation.models.entities.PlayList;
 import com.partialsimulation.partialsimulation.models.entities.User;
 import com.partialsimulation.partialsimulation.services.UserService;
@@ -45,7 +46,7 @@ public class UserController {
 		}
 	}
 	
-	@RequestMapping(value="/playlist", method = RequestMethod.POST, consumes = "application/json")
+/* 	@RequestMapping(value="/playlist", method = RequestMethod.POST, consumes = "application/json")
 	public ResponseEntity<?> findplaylistById(@RequestBody FindIdDTO info) throws Exception{
 		List<PlayList> myplaylist = userservice.findPlaylistByIdentifer(info);
 		if(myplaylist != null)
@@ -53,7 +54,7 @@ public class UserController {
 		
 		return new ResponseEntity<>("algo salio mal",HttpStatus.OK);
 	}
-	
+ */	
 	@RequestMapping(value="/auth/signup", method = RequestMethod.POST, consumes = "application/json")
 	public ResponseEntity<?> createUser(@RequestBody @Valid CreateUserDTO createUserDTO) throws Exception{
 		MessageResultDTO myuser = userservice.save(createUserDTO);
@@ -104,9 +105,10 @@ public class UserController {
 	
 	
 	@RequestMapping(value="/playlist", method = RequestMethod.GET)
-    public ResponseEntity<?> findUserPlaylists(@RequestBody FindIdDTO identifier){
+    public ResponseEntity<?> findUserPlaylists(@RequestParam("idUser") String idUser, 
+											@RequestParam("fragment") String fragment){
         
-        List<PlayList> list = userservice.findPlaylistByIdentifer(identifier);
+        List<ShowInfoPlaylistDTO> list = userservice.findPlaylistByIdentifer(idUser,fragment);
         if (list == null) {
         	return new ResponseEntity<>("error en campos",HttpStatus.BAD_REQUEST);
 		}
